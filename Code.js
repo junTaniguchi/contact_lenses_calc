@@ -15,10 +15,7 @@ function doGet(e) {
     return serveServiceWorker();
   }
 
-  const viewParam = (e && e.parameter && e.parameter.view) || '';
-  const viewKey = (path || viewParam || '').toLowerCase();
-  const viewName = viewKey === 'settings' ? 'settings' : 'index';
-  const template = HtmlService.createTemplateFromFile(viewName);
+  const template = HtmlService.createTemplateFromFile('index');
   template.scriptTimeZone = Session.getScriptTimeZone();
   template.lensDurationDays = LENS_DURATION_DAYS;
 
@@ -65,12 +62,14 @@ function serveServiceWorker() {
 }
 
 function getState() {
+  const defaultStartDate = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
   return {
     startDate: USER_PROPS.getProperty(START_DATE_KEY) || '',
     replacementDate: USER_PROPS.getProperty(REPLACEMENT_DATE_KEY) || '',
     durationDays: LENS_DURATION_DAYS,
     calendarEventId: USER_PROPS.getProperty(EVENT_ID_KEY) || '',
-    timezone: Session.getScriptTimeZone()
+    timezone: Session.getScriptTimeZone(),
+    defaultStartDate: defaultStartDate
   };
 }
 

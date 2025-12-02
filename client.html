@@ -63,6 +63,9 @@
         }
         startDisplay.textContent = '開始日: ' + formatDate(state.startDate);
       } else {
+        if (startInput) {
+          startInput.value = state.defaultStartDate || getLocalIsoDate();
+        }
         startDisplay.textContent = '開始日: --';
       }
 
@@ -147,6 +150,14 @@
       } catch (error) {
         console.debug('Service worker registration skipped', error);
       }
+    }
+
+    function getLocalIsoDate() {
+      const today = new Date();
+      const y = today.getFullYear();
+      const m = ('0' + (today.getMonth() + 1)).slice(-2);
+      const d = ('0' + today.getDate()).slice(-2);
+      return [y, m, d].join('-');
     }
 
     document.addEventListener('DOMContentLoaded', init);

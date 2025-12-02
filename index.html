@@ -19,16 +19,20 @@
       <header class="hero">
         <div class="eyebrow">PWA + Googleカレンダー</div>
         <h1>2weekコンタクト管理</h1>
-        <p>交換日を確認できます。開始日を変更する場合は「設定」画面へ。</p>
+        <p>開始日を登録すると交換日を計算し、Googleカレンダーにも自動で予定を作成します。</p>
       </header>
 
       <section class="card">
         <div id="alert" class="alert" hidden></div>
 
-        <div class="note">
-          開始日の登録・変更は設定画面で行ってください。
-          <a class="secondary-btn" href="./?view=settings">設定を開く</a>
-        </div>
+        <form id="lensForm" class="form">
+          <label for="startDate">レンズを装着した日</label>
+          <div class="input-row">
+            <input id="startDate" name="startDate" type="date" required>
+            <button id="saveBtn" type="submit">保存する</button>
+          </div>
+          <p class="hint">2weekなので<?= lensDurationDays ?>日後に交換します。</p>
+        </form>
 
         <div class="summary">
           <div class="summary__row">
