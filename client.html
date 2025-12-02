@@ -11,7 +11,9 @@
 
     function init() {
       registerServiceWorker();
-      form.addEventListener('submit', onSubmit);
+      if (form) {
+        form.addEventListener('submit', onSubmit);
+      }
       loadState();
     }
 
@@ -56,7 +58,9 @@
       }
 
       if (state.startDate) {
-        startInput.value = state.startDate;
+        if (startInput) {
+          startInput.value = state.startDate;
+        }
         startDisplay.textContent = '開始日: ' + formatDate(state.startDate);
       } else {
         startDisplay.textContent = '開始日: --';
@@ -114,11 +118,17 @@
     }
 
     function setSaving(isSaving) {
+      if (!saveBtn) {
+        return;
+      }
       saveBtn.disabled = isSaving;
       saveBtn.textContent = isSaving ? '保存中...' : '保存する';
     }
 
     function showAlert(message, isError) {
+      if (!alertBox) {
+        return;
+      }
       if (!message) {
         alertBox.hidden = true;
         return;

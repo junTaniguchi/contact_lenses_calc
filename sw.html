@@ -1,5 +1,5 @@
 const CACHE_NAME = 'contact-lens-pwa-v1';
-const OFFLINE_URLS = ['./', './manifest.webmanifest'];
+const OFFLINE_URLS = ['./', './settings', './?view=settings', './manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

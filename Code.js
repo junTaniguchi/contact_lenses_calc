@@ -15,7 +15,10 @@ function doGet(e) {
     return serveServiceWorker();
   }
 
-  const template = HtmlService.createTemplateFromFile('index');
+  const viewParam = (e && e.parameter && e.parameter.view) || '';
+  const viewKey = (path || viewParam || '').toLowerCase();
+  const viewName = viewKey === 'settings' ? 'settings' : 'index';
+  const template = HtmlService.createTemplateFromFile(viewName);
   template.scriptTimeZone = Session.getScriptTimeZone();
   template.lensDurationDays = LENS_DURATION_DAYS;
 

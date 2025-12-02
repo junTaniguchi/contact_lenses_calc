@@ -154,6 +154,26 @@
     box-shadow: 0 20px 40px rgba(99, 103, 242, 0.35);
   }
 
+  .secondary-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 14px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    color: var(--text);
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.04);
+    font-weight: 700;
+    transition: border-color 0.2s ease, transform 0.15s ease;
+  }
+
+  .secondary-btn:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+    color: var(--text);
+  }
+
   .hint {
     font-size: 13px;
     color: var(--text-muted);
