@@ -1,0 +1,144 @@
+<script>
+  (function () {
+    const form = document.getElementById('lensForm');
+    const startInput = document.getElementById('startDate');
+    const saveBtn = document.getElementById('saveBtn');
+    const replacementDisplay = document.getElementById('replacementDisplay');
+    const countdown = document.getElementById('countdown');
+    const startDisplay = document.getElementById('startDisplay');
+    const calendarStatus = document.getElementById('calendarStatus');
+    const alertBox = document.getElementById('alert');
+
+    function init() {
+      registerServiceWorker();
+      form.addEventListener('submit', onSubmit);
+      loadState();
+    }
+
+    function onSubmit(event) {
+      event.preventDefault();
+      const value = startInput.value;
+      if (!value) {
+        showAlert('開始日を入力してください', true);
+        return;
+      }
+      setSaving(true);
+      google.script.run
+        .withSuccessHandler(function (state) {
+          setSaving(false);
+          showAlert('保存しました。カレンダーにも反映しました。', false);
+          render(state);
+        })
+        .withFailureHandler(function (error) {
+          setSaving(false);
+          showAlert((error && error.message) || '保存に失敗しました。通信状態を確認してください。', true);
+        })
+        .saveStartDate(value);
+    }
+
+    function loadState() {
+      setSaving(true);
+      google.script.run
+        .withSuccessHandler(function (state) {
+          setSaving(false);
+          render(state);
+        })
+        .withFailureHandler(function () {
+          setSaving(false);
+          showAlert('最新の状態を取得できませんでした。オンライン状態を確認してください。', true);
+        })
+        .getState();
+    }
+
+    function render(state) {
+      if (!state) {
+        return;
+      }
+
+      if (state.startDate) {
+        startInput.value = state.startDate;
+        startDisplay.textContent = '開始日: ' + formatDate(state.startDate);
+      } else {
+        startDisplay.textContent = '開始日: --';
+      }
+
+      if (state.replacementDate) {
+        replacementDisplay.textContent = formatDate(state.replacementDate);
+        updateCountdown(state.startDate, state.replacementDate);
+      } else {
+        replacementDisplay.textContent = '--';
+        countdown.textContent = '開始日を入力してください';
+        countdown.className = 'badge';
+      }
+
+      if (state.calendarEventId) {
+        calendarStatus.textContent = 'カレンダー: 登録済み';
+      } else {
+        calendarStatus.textContent = 'カレンダー: 未登録';
+      }
+    }
+
+    function updateCountdown(startIso, replacementIso) {
+      const today = new Date();
+      const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const replacement = parseIsoDate(replacementIso);
+      const daysLeft = Math.round((replacement - todayDate) / 86400000);
+
+      countdown.className = 'badge';
+
+      if (daysLeft > 1) {
+        countdown.textContent = '交換まであと ' + daysLeft + ' 日';
+      } else if (daysLeft === 1) {
+        countdown.textContent = '明日交換';
+      } else if (daysLeft === 0) {
+        countdown.textContent = '今日交換する日です';
+        countdown.classList.add('warning');
+      } else {
+        countdown.textContent = '交換予定を ' + Math.abs(daysLeft) + ' 日過ぎています';
+        countdown.classList.add('critical');
+      }
+    }
+
+    function formatDate(isoDate) {
+      const date = parseIsoDate(isoDate);
+      const weekday = ['日', '月', '火', '水', '木', '金', '土'][date.getDay()];
+      const y = date.getFullYear();
+      const m = ('0' + (date.getMonth() + 1)).slice(-2);
+      const d = ('0' + date.getDate()).slice(-2);
+      return y + '/' + m + '/' + d + ' (' + weekday + ')';
+    }
+
+    function parseIsoDate(iso) {
+      const parts = iso.split('-').map(Number);
+      return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+
+    function setSaving(isSaving) {
+      saveBtn.disabled = isSaving;
+      saveBtn.textContent = isSaving ? '保存中...' : '保存する';
+    }
+
+    function showAlert(message, isError) {
+      if (!message) {
+        alertBox.hidden = true;
+        return;
+      }
+      alertBox.textContent = message;
+      alertBox.hidden = false;
+      alertBox.classList.toggle('error', Boolean(isError));
+    }
+
+    async function registerServiceWorker() {
+      if (!('serviceWorker' in navigator)) {
+        return;
+      }
+      try {
+        await navigator.serviceWorker.register('sw.js');
+      } catch (error) {
+        console.debug('Service worker registration skipped', error);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  })();
+</script>
