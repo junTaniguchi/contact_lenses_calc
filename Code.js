@@ -119,9 +119,15 @@ function upsertCalendarEvent(payload) {
 
   try {
     const description = '2weekコンタクトの交換日です。\n開始日: ' + payload.startIso;
-    const event = calendar.createAllDayEvent('コンタクト交換', payload.replacementDate, {
-      description
-    });
+    const endDate = addDays(payload.replacementDate, 1);
+    const event = calendar.createAllDayEvent(
+      'コンタクト交換',
+      payload.replacementDate,
+      endDate,
+      {
+        description
+      }
+    );
     return event.getId();
   } catch (err) {
     console.error('カレンダー登録に失敗', err);
