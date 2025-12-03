@@ -87,6 +87,10 @@ function saveStartDate(isoDate) {
     replacementDate
   });
 
+  if (!eventId) {
+    throw new Error('カレンダー登録に失敗しました。再度アクセス許可を与えてから保存してください。');
+  }
+
   USER_PROPS.setProperties({
     [START_DATE_KEY]: isoDate,
     [REPLACEMENT_DATE_KEY]: replacementIso,
@@ -103,7 +107,10 @@ function saveStartDate(isoDate) {
 }
 
 function upsertCalendarEvent(payload) {
-  const calendar = CalendarApp.getDefaultCalendar();
+  const calendar = getUserCalendar();
+  if (!calendar) {
+    throw new Error('カレンダーを取得できませんでした。権限を確認してください。');
+  }
   const previousId = USER_PROPS.getProperty(EVENT_ID_KEY);
 
   if (previousId) {
@@ -132,6 +139,26 @@ function upsertCalendarEvent(payload) {
   } catch (err) {
     console.error('カレンダー登録に失敗', err);
     return '';
+  }
+}
+
+function getUserCalendar() {
+  try {
+    var email = Session.getActiveUser().getEmail() || Session.getEffectiveUser().getEmail();
+    if (email) {
+      var userCalendar = CalendarApp.getCalendarById(email);
+      if (userCalendar) {
+        return userCalendar;
+      }
+    }
+  } catch (err) {
+    console.warn('ユーザーカレンダー取得に失敗', err);
+  }
+  try {
+    return CalendarApp.getDefaultCalendar();
+  } catch (err) {
+    console.warn('デフォルトカレンダー取得に失敗', err);
+    return null;
   }
 }
 
